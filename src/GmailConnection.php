@@ -119,7 +119,7 @@ class GmailConnection extends Google_Client
 
 	public function getToken()
 	{
-		return parent::getAccessToken() ?: $this->getAccessTokenFromFile();
+		return $this->config() ?: parent::getAccessToken(); 
 	}
 
 	/**
@@ -170,7 +170,7 @@ class GmailConnection extends Google_Client
 	 */
 	public function saveAccessToken( array $config)
 	{
-		$file = $this->getTokenLocation();
+		$file = $this->getTokenFilePath();
 
 		if ( Storage::disk( 'local' )->exists( $file ) ) {
 			Storage::disk( 'local' )->delete( $file );
@@ -186,7 +186,7 @@ class GmailConnection extends Google_Client
 	 */
 	public function deleteAccessToken()
 	{
-		$file = $this->getTokenLocation();
+		$file = $this->getTokenFilePath();
 
 		if ( Storage::disk( 'local' )->exists( $file ) ) {
 			Storage::disk( 'local' )->delete( $file );
@@ -197,7 +197,7 @@ class GmailConnection extends Google_Client
 
 	public function getAccessTokenFromFile()
 	{
-		$filename = $this->getTokenLocation();
+		$filename = $this->getTokenFilePath();
 
 		if (Storage::disk('local')->exists($filename)) {
 			return json_decode( Storage::disk('local')->get($filename), true);
