@@ -14,7 +14,7 @@ trait Configurable
 	private $_config;
 	private $userId;
 	private $defaultFileName = 'credentials.json';
-	private $defaultFileDir = 'app/gmail/tokens/';
+	private $defaultFileDir = 'gmail/tokens/';
 
 	public function __construct( $config )
 	{
