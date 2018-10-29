@@ -12,12 +12,13 @@ trait Configurable
 {
 
 	private $_config;
-	private $userId = auth()->user()->id;
+	private $userId;
 	private $defaultFileName = 'credentials.json';
 	private $defaultFileDir = 'app/gmail/tokens/';
 
 	public function __construct( $config )
 	{
+		$this->userId = auth()->user()->id;
 		$this->_config = $config;
 	}
 

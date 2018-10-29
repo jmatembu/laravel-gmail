@@ -84,9 +84,9 @@ class GmailConnection extends Google_Client
 	 *
 	 * @return bool
 	 */
-	public function check($token)
+	public function check()
 	{
-		return ! $this->isAccessTokenExpired($token);
+		return ! $this->isAccessTokenExpired();
 	}
 
 	/**
@@ -110,8 +110,10 @@ class GmailConnection extends Google_Client
 	/**
 	 * Revokes user's permission and logs them out
 	 */
-	public function logout($token)
+	public function logout()
 	{
+		$token = $this->getAccessTokenFromFile();
+		
 		$this->revokeToken($token);
 	}
 
@@ -155,7 +157,7 @@ class GmailConnection extends Google_Client
 	/**
 	 * @param $token
 	 */
-	public function setBothAccessToken( $token)
+	public function setBothAccessToken( $token )
 	{
 		parent::setAccessToken( $token );
 		$this->saveAccessToken( $token );
