@@ -42,7 +42,7 @@ class GmailConnection extends Google_Client
 
 	public function getAccessToken()
 	{
-		$token = parent::getAccessToken() ?: $this->config();
+		$token = parent::getAccessToken() ?: $this->getAccessTokenFromFile();
 
 		return $token;
 	}
@@ -53,24 +53,25 @@ class GmailConnection extends Google_Client
 	 */
 	public function makeToken()
 	{
-		if ( ! $this->check() ) {
-			$request = Request::capture();
-			$code = (string) $request->input( 'code', null );
-			if ( ! is_null( $code ) && ! empty( $code ) ) {
-				$accessToken = $this->fetchAccessTokenWithAuthCode( $code );
-				$me = $this->getProfile();
-				if ( property_exists( $me, 'emailAddress' ) ) {
-					$this->emailAddress = $me->emailAddress;
-				}
-				$this->setBothAccessToken( $accessToken );
+		$request = Request::capture();
+		$code = (string) $request->input( 'code', null );
 
-				return $accessToken;
-			} else {
-				throw new \Exception( 'No access token' );
+		if ( ! is_null( $code ) && ! empty( $code ) ) {
+			$accessToken = $this->fetchAccessTokenWithAuthCode( $code );
+			$me = $this->getProfile();
+
+			if ( property_exists( $me, 'emailAddress' ) ) {
+				$this->emailAddress = $me->emailAddress;
 			}
+
+			$this->setBothAccessToken( $accessToken );
+
+			return $accessToken;
+
 		} else {
-			return $this->getAccessToken();
+			throw new \Exception( 'No access token' );
 		}
+
 	}
 
 	public function setToken( $token )
@@ -83,9 +84,9 @@ class GmailConnection extends Google_Client
 	 *
 	 * @return bool
 	 */
-	public function check()
+	public function check($token)
 	{
-		return ! $this->isAccessTokenExpired();
+		return ! $this->isAccessTokenExpired($token);
 	}
 
 	/**
@@ -109,14 +110,14 @@ class GmailConnection extends Google_Client
 	/**
 	 * Revokes user's permission and logs them out
 	 */
-	public function logout()
+	public function logout($token)
 	{
-		$this->revokeToken();
+		$this->revokeToken($token);
 	}
 
 	public function getToken()
 	{
-		return parent::getAccessToken() ?: $this->config();
+		return parent::getAccessToken() ?: $this->getAccessTokenFromFile();
 	}
 
 	/**
@@ -154,7 +155,7 @@ class GmailConnection extends Google_Client
 	/**
 	 * @param $token
 	 */
-	public function setBothAccessToken( $token )
+	public function setBothAccessToken( $token)
 	{
 		parent::setAccessToken( $token );
 		$this->saveAccessToken( $token );
@@ -165,10 +166,9 @@ class GmailConnection extends Google_Client
 	 *
 	 * @param array $config
 	 */
-	public function saveAccessToken( array $config )
+	public function saveAccessToken( array $config)
 	{
-		$fileName = $this->getFileName();
-		$file = "gmail/tokens/$fileName.json";
+		$file = $this->getTokenLocation();
 
 		if ( Storage::disk( 'local' )->exists( $file ) ) {
 			Storage::disk( 'local' )->delete( $file );
@@ -184,14 +184,24 @@ class GmailConnection extends Google_Client
 	 */
 	public function deleteAccessToken()
 	{
-		$fileName = $this->getFileName();
-		$file = "gmail/tokens/$fileName.json";
+		$file = $this->getTokenLocation();
 
 		if ( Storage::disk( 'local' )->exists( $file ) ) {
 			Storage::disk( 'local' )->delete( $file );
 		}
 
 		Storage::disk( 'local' )->put( $file, json_encode( [] ) );
+	}
+
+	public function getAccessTokenFromFile()
+	{
+		$filename = $this->getTokenLocation();
+
+		if (Storage::disk('local')->exists($filename)) {
+			return json_decode( Storage::disk('local')->get($filename), true);
+		}
+
+		return null;
 	}
 
 }
