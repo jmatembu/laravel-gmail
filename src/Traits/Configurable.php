@@ -12,12 +12,12 @@ trait Configurable
 {
 
 	private $_config;
-	private $userId;
+	private $accountId;
 	private $defaultFileDir = 'gmail/tokens/';
 
 	public function __construct( $config )
 	{
-		$this->userId = auth()->user()->id;
+		$this->accountId = auth()->user()->currentAccount()->id;
 		$this->_config = $config;
 	}
 
@@ -79,7 +79,7 @@ trait Configurable
 
 	private function getFileName()
 	{
-		return $this->userId . '_' . $this->_config[ 'gmail.credentials_file_name' ] . '.json';
+		return $this->accountId . '_' . $this->_config[ 'gmail.credentials_file_name' ] . '.json';
 	}
 
 	public function getTokenFilePath()
