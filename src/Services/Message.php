@@ -153,6 +153,20 @@ class Message
 	}
 
 	/**
+	 * Filter to get only emails to a specific email address
+	 *
+	 * @param $email
+	 *
+	 * @return $this
+	 */
+	public function to( $email )
+	{
+		$this->add( "to:{$email}" );
+
+		return $this;
+	}
+
+	/**
 	 * Filters emails by tag
 	 * Example:
 	 * * starred
