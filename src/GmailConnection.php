@@ -119,7 +119,7 @@ class GmailConnection extends Google_Client
 
 	public function getToken()
 	{
-		return $this->config() ?: parent::getAccessToken(); 
+		return parent::getAccessToken() ?: $this->config();
 	}
 
 	/**
