@@ -20,8 +20,7 @@ trait Configurable
 
 	public function config( $string = null )
 	{
-		$fileName = $this->getFileName();
-		$file = storage_path( "app/gmail/tokens/{$fileName}.json" );
+		$file = storage_path( "app/gmail/tokens/{$this->tokenFile}" );
 
 		if ( file_exists( $file ) ) {
 			$config = json_decode(
@@ -76,7 +75,8 @@ trait Configurable
 
 	private function getFileName()
 	{
-		return $this->_config[ 'gmail.credentials_file_name' ];
+		return $this->tokenFile;
+		//return $this->_config[ 'gmail.credentials_file_name' ];
 	}
 
 	private function mapScopes()

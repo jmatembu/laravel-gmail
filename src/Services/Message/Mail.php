@@ -65,14 +65,15 @@ class Mail extends GmailConnection
 	 * @param bool $preload
 	 *
 	 */
-	public function __construct( \Google_Service_Gmail_Message $message = null, $preload = false )
+	public function __construct( \Google_Service_Gmail_Message $message = null, $preload = false, $tokenFile = null )
 	{
 
 		$this->service = new Google_Service_Gmail( $this );
 
 		$this->__rConstruct();
 		$this->__mConstruct();
-		parent::__construct( config() );
+		$this->tokenFile = $tokenFile;
+		parent::__construct( config(), $tokenFile );
 
 		if ( ! is_null( $message ) ) {
 			if ( $preload ) {
@@ -298,7 +299,7 @@ class Mail extends GmailConnection
 			$body = $part->getBody();
 
 			if ( $body->getAttachmentId() ) {
-				$attachment = ( new Attachment( $this->getId(), $part ) );
+				$attachment = ( new Attachment( $this->getId(), $part, $this->tokenFile ) );
 				if ( $preload ) {
 					$attachment = $attachment->getData();
 				}
@@ -374,9 +375,15 @@ class Mail extends GmailConnection
 	public function getBody( $type = 'text/plain' )
 	{
 		$part = $this->getBodyPart( $type );
-		$body = $part->getBody();
+		
+		if (! is_null($part)) {
+			$body = $part->getBody();
 
-		return $body->getData();
+			return $body->getData();
+		}
+		
+		return null;
+		
 	}
 
 	/**

@@ -21,10 +21,12 @@ class GmailConnection extends Google_Client
 	protected $app;
 	protected $accessToken;
 	protected $token;
+	protected $tokenFile;
 	private $configuration;
 
-	public function __construct( $config = null )
+	public function __construct( $config = null, $tokenFile )
 	{
+		$this->tokenFile = $tokenFile;
 		$this->app = Container::getInstance();
 
 		$this->configConstruct($config);
@@ -38,6 +40,11 @@ class GmailConnection extends Google_Client
 		if ( $this->check() ) {
 			$this->refreshTokenIfNeeded();
 		}
+	}
+
+	public function getTokenFile()
+	{
+		return $this->tokenFile;
 	}
 
 	public function getAccessToken()
@@ -167,8 +174,7 @@ class GmailConnection extends Google_Client
 	 */
 	public function saveAccessToken( array $config )
 	{
-		$fileName = $this->getFileName();
-		$file = "gmail/tokens/$fileName.json";
+		$file = "gmail/tokens/{$this->tokenFile}";
 
 		if ( Storage::disk( 'local' )->exists( $file ) ) {
 			Storage::disk( 'local' )->delete( $file );
@@ -184,8 +190,7 @@ class GmailConnection extends Google_Client
 	 */
 	public function deleteAccessToken()
 	{
-		$fileName = $this->getFileName();
-		$file = "gmail/tokens/$fileName.json";
+		$file = "gmail/tokens/{$this->tokenFile}";
 
 		if ( Storage::disk( 'local' )->exists( $file ) ) {
 			Storage::disk( 'local' )->delete( $file );

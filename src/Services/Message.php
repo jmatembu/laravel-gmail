@@ -24,7 +24,7 @@ class Message
 	 * @var array
 	 */
 	protected $params = [];
-
+	protected $tokenFile;
 	/**
 	 * Message constructor.
 	 *
@@ -32,6 +32,8 @@ class Message
 	 */
 	public function __construct( LaravelGmailClass $client )
 	{
+		$this->tokenFile = $client->getTokenFile();
+
 		$this->service = new Google_Service_Gmail( $client );
 	}
 
@@ -56,7 +58,7 @@ class Message
 		$allMessages = $response->getMessages();
 
 		foreach ( $allMessages as $message ) {
-			$messages[] = new Mail( $message, $this->preload );
+			$messages[] = new Mail( $message, $this->preload, $this->tokenFile);
 		}
 
 		return collect( $messages );
@@ -148,6 +150,20 @@ class Message
 	public function from( $email )
 	{
 		$this->add( "from:{$email}" );
+
+		return $this;
+	}
+
+	/**
+	 * Filter to get only emails to a specific email address
+	 *
+	 * @param $email
+	 *
+	 * @return $this
+	 */
+	public function to( $email )
+	{
+		$this->add( "to:{$email}" );
 
 		return $this;
 	}

@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Redirect;
 class LaravelGmailClass extends GmailConnection
 {
 
-	public function __construct( $config )
+	public function __construct( $config, $tokenFile )
 	{
 		if(class_basename($config) === 'Application') {
 			$config = $config['config'];
 		}
 
-		parent::__construct( $config );
+		parent::__construct( $config, $tokenFile );
 	}
 
 	/**
