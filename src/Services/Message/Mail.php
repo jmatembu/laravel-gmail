@@ -386,6 +386,53 @@ class Mail extends GmailConnection
 		
 	}
 
+	public function getBodyContent()
+	{
+		$body = $this->payload->getBody();
+		$foundBody = $this->decodeBody($body['data']);
+		// If we didn't find a body, let's look for the parts
+		if (! $foundBody) {
+			$parts = $this->payload->getParts();
+
+			foreach ($parts as $part) {
+				if ($part['body'] && $part['mimeType'] == 'text/html') {
+					$foundBody = $this->decodeBody($part['body']->data);
+					break;
+				}
+			}
+		}
+
+		if (! $foundBody) {
+			foreach ($parts as $part) {
+				// Last try: if we didn't find the body in the first parts,
+				// let's loop into the parts of the parts
+				if ($part['parts'] && ! $foundBody) {
+					foreach ($part['parts'] as $p) {
+						if (($p['mimeType'] === 'text/html' || $p['mimeType'] === 'text/plain') && $p['body']) {
+							$foundBody = $this->decodeBody($p['body']->data);
+							break;
+						}
+					}
+				}
+				if ($foundBody) {
+					break;
+				}
+			}
+		}
+
+		return $foundBody;
+	}
+
+	public function decodeBody($body) {
+	    $rawData = $body;
+	    $sanitizedData = strtr($rawData,'-_', '+/');
+	    $decodedMessage = base64_decode($sanitizedData);
+	    if(!$decodedMessage){
+	        $decodedMessage = FALSE;
+	    }
+	    return $decodedMessage;
+	}
+
 	/**
 	 * Get's the gmail information from the Mail
 	 *
