@@ -169,6 +169,19 @@ class Message
 	}
 
 	/**
+	 * Filter to get emails after specified timestamp
+	 * 
+	 * @param  int $timestamp
+	 * @return $this
+	 */
+	public function after( $timestamp )
+	{
+		$this->add( "after:{$timestamp}" );
+
+		return $this;
+	}
+
+	/**
 	 * Filters emails by tag
 	 * Example:
 	 * * starred
